@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from google.generativeai import GenerativeModel
 import google.generativeai as genai
 import os
@@ -8,13 +8,16 @@ import re
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
 
 wellness_bp = Blueprint('wellness_bp', __name__)
-
 genai.configure()
+
+# In-memory chat history store (for each user/session)
+chat_sessions = {}
 
 @wellness_bp.route("/ask", methods=["POST"])
 def ask_genetic():
     data = request.get_json()
     user_query = data.get("query")
+    user_id = data.get("user_id", "default_user")  # Optional: pass from frontend
 
     if not user_query:
         return jsonify({"answer": "Please provide a query."}), 400
@@ -22,6 +25,14 @@ def ask_genetic():
     try:
         model = GenerativeModel("gemini-1.5-flash")
 
+        # Use persistent chat if user session exists
+        if user_id in chat_sessions:
+            chat = chat_sessions[user_id]
+        else:
+            chat = model.start_chat(history=[])
+            chat_sessions[user_id] = chat
+
+        # Format the system prompt
         prompt = f"""
 You are an expert assistant. Answer the user's question as clearly and informatively as possible.
 
@@ -46,13 +57,11 @@ Answer the following question:
 {user_query}
 """
 
-        response = model.generate_content(prompt)
+        # Send message to Gemini with context maintained
+        response = chat.send_message(prompt)
         response_text = response.text.strip()
 
-        # --- Robust bullet formatting ---
-        # Remove leading dashes/whitespace and split on "- "
-
-        # Remove any stray places where "- " is not at the true start or after a newline
+        # Bullet formatting cleanup
         response_text = response_text.lstrip('-').strip()
         bullets = re.split(r'(?:^|\n)\s*-\s+', response_text)
         bullets = [b.strip() for b in bullets if b.strip()]
