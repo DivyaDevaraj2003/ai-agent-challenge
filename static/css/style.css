@@ -32,20 +32,65 @@ body.dark-mode {
   z-index: -1;
 }
 
-/* Chat Container */
-.chat-container {
-  max-width: 600px;
-  margin: 120px auto 50px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  position: relative;
+/* Assistant Toggle Buttons */
+#assistant-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 10px;
+}
+#assistant-toggle button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  background: #e0f7fa;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+#assistant-toggle .active {
+  background-color: #4CAF50;
+  color: white;
+}
+body.dark-mode #assistant-toggle button {
+  background: #222;
+  color: #f1f1f1;
+}
+body.dark-mode #assistant-toggle .active {
+  background-color: #4CAF50;
+  color: white;
 }
 
-/* Dark mode support */
-body.dark-mode .chat-container {
+/* Chat Container */
+.chat-container,
+#chat-container {
+  width: 100%;
+  max-width: 900px;    /* Use 900px as latest, or adjust as desired */
+  height: 80vh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 16px;  /* Use higher radius for a softer look */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), /* keep existing + old: */
+              0px 0px 10px rgba(0,0,0,0.2);
+  overflow: hidden;
+  position: relative;
+  min-height: 500px;    /* Ensures enough vertical space */
+}
+body.dark-mode .chat-container,
+body.dark-mode #chat-container {
   background: #1e1e1e;
+}
+
+/* Responsive: */
+@media (max-width: 700px) {
+  .chat-container,
+  #chat-container {
+    margin: 80px 5vw 40px;
+    max-width: 98vw;
+  }
 }
 
 /* Bot Header */
@@ -55,24 +100,38 @@ body.dark-mode .chat-container {
   gap: 15px;
   margin-bottom: 1rem;
 }
-
 .bot-avatar {
   width: 50px;
   border-radius: 50%;
 }
-
 .bot-header h2 {
   font-size: 1.4rem;
 }
 
 /* Chat Box */
-.chat-box {
-  max-height: 400px;
+.chat-box,
+#chatbox {
+  flex-grow: 1;
   overflow-y: auto;
-  padding-right: 10px;
-  margin-bottom: 1rem;
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 0; /* Removes extra space, since sticky input is below */
+  max-height: unset;
+  /* Remove or override max-height if you want full height scrolling with sticky input */
+}
+/* Make sure only one scroll bar appears -- don't restrict max-height unless you want to! */
+.chat-box::-webkit-scrollbar,
+#chatbox::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-box::-webkit-scrollbar-thumb,
+#chatbox::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
 }
 
+/* Messages */
 .bot-message, .user-message {
   padding: 10px 15px;
   border-radius: 20px;
@@ -81,51 +140,65 @@ body.dark-mode .chat-container {
   word-wrap: break-word;
   animation: fadeIn 0.3s ease-in-out;
 }
-
 .bot-message {
   background-color: #e0f7fa;
   align-self: flex-start;
 }
-
 .user-message {
   background-color: #a0e7e5;
   align-self: flex-end;
   margin-left: auto;
 }
-
 body.dark-mode .bot-message {
   background-color: #2c3e50;
 }
-
 body.dark-mode .user-message {
   background-color: #34495e;
 }
 
-/* Input Area */
-.input-area {
+/* Input Area - unified for your new structure */
+.input-area,
+#chat-input-container {
   display: flex;
-  gap: 10px;
-}
-
-.input-area input {
-  flex: 1;
   padding: 10px;
-  border-radius: 30px;
-  border: 1px solid #ccc;
-  outline: none;
+  gap: 10px;
+  border-top: 1px solid #ddd;
+  background-color: #f9f9f9;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
-
-.input-area button {
+/* For both legacy and new input areas */
+.input-area input,
+#chat-input-container input,
+#user-input {
+  flex-grow: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin: 0;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input-area button,
+#chat-input-container button,
+#chat-container button,
+button {
   padding: 10px 20px;
-  border-radius: 30px;
+  border-radius: 10px;
   border: none;
-  background-color: #00b4d8;
+  background-color: #4CAF50;
   color: white;
+  font-weight: bold;
   cursor: pointer;
+  margin-left: 10px;
   transition: background-color 0.3s ease;
 }
-
-.input-area button:hover {
+.input-area button:hover,
+#chat-input-container button:hover,
+button:hover {
   background-color: #0077b6;
 }
 
@@ -135,11 +208,21 @@ body.dark-mode .user-message {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Scrollbar Customization */
-.chat-box::-webkit-scrollbar {
-  width: 6px;
+/* Assistant Selector */
+.assistant-selector {
+  max-width: 600px;
+  margin: 20px auto 0;
+  text-align: right;
+  padding: 0 1rem;
 }
-.chat-box::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
+.assistant-selector select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+body.dark-mode .assistant-selector select {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+  border: 1px solid #444;
 }

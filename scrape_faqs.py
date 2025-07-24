@@ -1,37 +1,46 @@
-import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
-import json
-import os
+import time
 
-def scrape_nugenomics_faqs():
+def scrape_nugenomics_faq_aux():
+    options = Options()
+    options.add_argument("--headless=new")  # or "--headless" for older versions
+    driver = webdriver.Chrome(options=options)
+
     url = "https://www.nugenomics.in/faqs/"
-    response = requests.get(url)
-    response.raise_for_status()
+    print(f"Fetching {url} with browser...")
+    driver.get(url)
+    time.sleep(8)   # Increase if you have a slow connection, decrease if fast
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    html = driver.page_source
+    driver.quit()
 
-    faqs = []
+    soup = BeautifulSoup(html, "html.parser")
+    faqs = {}
 
-    # Find all FAQ sections
-    faq_sections = soup.find_all('div', class_='elementor-toggle-item')
+    # Find each FAQ question header
+    headers = soup.find_all('h4', class_='aux-toggle-header')
+    print(f"Found {len(headers)} FAQ questions (AUX headers).")
 
-    for section in faq_sections:
-        question_elem = section.find('span', class_='elementor-toggle-title')
-        answer_elem = section.find('div', class_='elementor-toggle-content')
+    for header in headers:
+        question = header.get_text(strip=True)
+        # The answer is in the next sibling .acc-content-wrap > .aux-toggle-content
+        content_wrap = header.find_next_sibling('div', class_='acc-content-wrap')
+        if content_wrap:
+            answer_div = content_wrap.find('div', class_='aux-toggle-content')
+            if answer_div:
+                answer = answer_div.get_text("\n", strip=True)
+                faqs[question] = answer
 
-        if question_elem and answer_elem:
-            question = question_elem.get_text(strip=True)
-            answer = answer_elem.get_text(separator=" ", strip=True)
-            faqs.append({"question": question, "answer": answer})
+    if not faqs:
+        print("No FAQs found! Check selectors and increase sleep if needed.")
+    else:
+        for idx, (q, a) in enumerate(faqs.items(), 1):
+            print(f"{idx}. Q: {q}\nA: {a}\n{'-'*60}")
 
-    # Make sure the data folder exists
-    os.makedirs("data", exist_ok=True)
-
-    # Save to JSON
-    with open("data/faqs.json", "w", encoding="utf-8") as f:
-        json.dump(faqs, f, ensure_ascii=False, indent=4)
-
-    print(f"✅ Scraped and saved {len(faqs)} FAQs to data/faqs.json")
+    return faqs
 
 if __name__ == "__main__":
-    scrape_nugenomics_faqs()
+    faqs = scrape_nugenomics_faq_aux()
+    print(f"\nScraped a total of {len(faqs)} FAQs.")

@@ -7,35 +7,60 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <!-- Theme Toggle -->
+  <!-- 🌙 Theme Toggle -->
   <div class="toggle-theme" id="theme-toggle">🌙</div>
 
-  <!-- Background Waves -->
+  <!-- 🌊 Background Waves -->
   <div class="background-waves">
     <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
       <path d="M0,0 C600,100 600,0 1200,100 L1200,0 L0,0 Z" fill="#00b4d8" />
     </svg>
   </div>
 
-  <!-- Main Chat Container -->
+  <!-- 🧬 Assistant Selector (Add toggle buttons here for better integration) -->
+  <div id="assistant-toggle" style="margin: 16px 0;">
+    <button id="faq-btn" class="active">🔍 FAQ Assistant</button>
+    <button id="wellness-btn">🧬 Genetic Wellness Assistant</button>
+  </div>
+  <div id="assistant-description">
+    <p>Ask about our services, pricing, or process.</p>
+  </div>
+  <div class="assistant-selector" style="display: none;">
+    <!-- Optionally keep the dropdown if you intend to use both toggle and select -->
+    <label for="assistant-choice">Assistant:</label>
+    <select id="assistant-choice">
+      <option value="faq" selected>📘 FAQ Assistant</option>
+      <option value="genetic">🧬 Genetic Wellness Assistant</option>
+    </select>
+  </div>
+
+  <!-- 💬 Chat UI Container -->
   <div class="chat-container">
     <div class="bot-header">
       <img src="{{ url_for('static', filename='img/bot-avatar.png.png') }}" alt="Bot" class="bot-avatar" />
-
-
-
       <h2>Customer Assistant</h2>
     </div>
 
+    <!-- UNIFIED chat area for messages -->
     <div class="chat-box" id="chat-box">
       <div class="bot-message">Hi 👋 I’m your Nuegenomics assistant. How can I help you today?</div>
     </div>
 
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="Ask me anything..." />
-      <button id="send-button">Send</button>
+    <!-- Unified input area (feel free to adjust styles/classes as needed) -->
+    <div id="chat-input-container" class="input-area">
+      <input id="user-input" placeholder="Type your message..." />
+      <button id="send-button" onclick="sendQuery()">Send</button>
     </div>
   </div>
+
+  <!-- 
+  Remove this block in production -- duplicated, not needed!
+  <div id="chat-container" style="display:none">
+    <div id="chatbox"></div>
+    <input id="user-input" placeholder="Type your message..." />
+    <button onclick="sendQuery()">Send</button>
+  </div>
+  -->
 
   <!-- JavaScript -->
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
