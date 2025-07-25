@@ -4,13 +4,10 @@ import google.generativeai as genai
 import os
 import re
 
-# This line has been removed as it conflicts with the deployment environment.
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
-
 wellness_bp = Blueprint('wellness_bp', __name__)
 genai.configure()
 
-# In-memory chat history store (for each user/session)
+# In-memory chat history store
 chat_sessions = {}
 
 # Define conversational keywords
@@ -45,36 +42,17 @@ def ask_genetic():
             chat = model.start_chat(history=[])
             chat_sessions[user_id] = chat
 
-        # Format the system prompt for the LLM
+        # --- UPDATED: Simplified prompt to respond faster ---
         prompt = f"""
-You are an expert assistant. Answer the user's question as clearly and informatively as possible.
+You are an expert assistant for genetic wellness. Answer the following question clearly and concisely.
 
-IMPORTANT: 
-- Format your answer as 3 to 4 bullet points.
-- Each bullet point must be a concise paragraph (2-3 sentences) that is separated from the next by a blank line (TWO newline characters).
-- Begin each bullet with '- ' (a dash and a space at line start, not a number or asterisk).
-- Do NOT cluster multiple ideas into one bullet.
-- Do not use markdown or formatting like bold or italics.
-- Do not include a greeting, summary, or conclusion.
-
-Answer the following question:
-
-{user_query}
+Question: {user_query}
 """
 
         # Send message to Gemini
         response = chat.send_message(prompt)
-        response_text = response.text.strip()
-
-        # Bullet formatting cleanup
-        response_text = response_text.lstrip('-').strip()
-        bullets = re.split(r'(?:^|\n)\s*-\s+', response_text)
-        bullets = [b.strip() for b in bullets if b.strip()]
-        formatted = '\n\n- '.join(bullets)
-        if formatted and not formatted.startswith('-'):
-            formatted = '- ' + formatted
-
-        return jsonify({"answer": formatted})
+        
+        return jsonify({"answer": response.text})
 
     except Exception as e:
         print("❌ Gemini error:", e)
