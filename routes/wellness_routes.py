@@ -1,10 +1,11 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify
 from google.generativeai import GenerativeModel
 import google.generativeai as genai
 import os
 import re
 
 # Set Google credentials (adjust path as needed)
+# This is often better done once in your main app.py, but this works.
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
 
 wellness_bp = Blueprint('wellness_bp', __name__)
@@ -13,15 +14,29 @@ genai.configure()
 # In-memory chat history store (for each user/session)
 chat_sessions = {}
 
+# --- ADD THIS: Define conversational keywords ---
+GREETINGS = ["hi", "hello", "hey", "greetings", "good morning", "good afternoon"]
+THANKS = ["thanks", "thank you", "thx"]
+
+
 @wellness_bp.route("/ask", methods=["POST"])
 def ask_genetic():
     data = request.get_json()
     user_query = data.get("query")
-    user_id = data.get("user_id", "default_user")  # Optional: pass from frontend
+    user_id = data.get("user_id", "default_user")
 
     if not user_query:
         return jsonify({"answer": "Please provide a query."}), 400
 
+    # --- ADD THIS SECTION: Handle conversational phrases first ---
+    cleaned_query = user_query.lower().strip()
+    if cleaned_query in GREETINGS:
+        return jsonify({"answer": "Hello! How can I help you with your genetic wellness questions today?"})
+    if cleaned_query in THANKS:
+        return jsonify({"answer": "You're welcome! Do you have any other questions?"})
+    # --- END OF NEW SECTION ---
+
+    # If it's a real question, proceed to the Gemini model
     try:
         model = GenerativeModel("gemini-1.5-flash")
 
@@ -32,7 +47,7 @@ def ask_genetic():
             chat = model.start_chat(history=[])
             chat_sessions[user_id] = chat
 
-        # Format the system prompt
+        # Format the system prompt for the LLM
         prompt = f"""
 You are an expert assistant. Answer the user's question as clearly and informatively as possible.
 
@@ -44,20 +59,12 @@ IMPORTANT:
 - Do not use markdown or formatting like bold or italics.
 - Do not include a greeting, summary, or conclusion.
 
-Here is an example of the required format:
-
-- This is the first bullet point. It provides some information about the topic. This is a second sentence for detail.
-
-- This is the second bullet point. It is also a short paragraph, and has its own blank line above.
-
-- This is the third bullet point. Notice the blank line between each bullet.
-
 Answer the following question:
 
 {user_query}
 """
 
-        # Send message to Gemini with context maintained
+        # Send message to Gemini
         response = chat.send_message(prompt)
         response_text = response.text.strip()
 

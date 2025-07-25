@@ -19,7 +19,7 @@ document.getElementById("faq-btn").addEventListener("click", () => {
   currentAssistant = "faq";
   document.getElementById("faq-btn").classList.add("active");
   document.getElementById("wellness-btn").classList.remove("active");
-  document.getElementById("assistant-description").innerHTML = "<p>Ask about our services, pricing, or process.</p>";
+  document.getElementById("assistant-description").innerHTML = "<p>Get quick answers to common questions..</p>";
   resetChat();
 });
 document.getElementById("wellness-btn").addEventListener("click", () => {
