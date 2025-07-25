@@ -1,6 +1,9 @@
 
 # Dual-Agent AI Chat Application
 
+**Live Application URL:** [https://ai-agent-challenge.onrender.com](https://ai-agent-challenge.onrender.com)
+
+---
 This project features a web-based chat interface with two distinct AI agents: a rule-based **FAQ Agent** for specific company queries and an LLM-powered **Genetic Wellness Agent** for general knowledge questions. The application is built with a Python Flask backend and a dynamic HTML, CSS, and JavaScript frontend.
 
 ## Key Features

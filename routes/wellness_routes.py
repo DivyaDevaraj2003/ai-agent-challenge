@@ -4,9 +4,8 @@ import google.generativeai as genai
 import os
 import re
 
-# Set Google credentials (adjust path as needed)
-# This is often better done once in your main app.py, but this works.
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
+# This line has been removed as it conflicts with the deployment environment.
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
 
 wellness_bp = Blueprint('wellness_bp', __name__)
 genai.configure()
@@ -14,7 +13,7 @@ genai.configure()
 # In-memory chat history store (for each user/session)
 chat_sessions = {}
 
-# --- ADD THIS: Define conversational keywords ---
+# Define conversational keywords
 GREETINGS = ["hi", "hello", "hey", "greetings", "good morning", "good afternoon"]
 THANKS = ["thanks", "thank you", "thx"]
 
@@ -28,13 +27,12 @@ def ask_genetic():
     if not user_query:
         return jsonify({"answer": "Please provide a query."}), 400
 
-    # --- ADD THIS SECTION: Handle conversational phrases first ---
+    # Handle conversational phrases first
     cleaned_query = user_query.lower().strip()
     if cleaned_query in GREETINGS:
         return jsonify({"answer": "Hello! How can I help you with your genetic wellness questions today?"})
     if cleaned_query in THANKS:
         return jsonify({"answer": "You're welcome! Do you have any other questions?"})
-    # --- END OF NEW SECTION ---
 
     # If it's a real question, proceed to the Gemini model
     try:
