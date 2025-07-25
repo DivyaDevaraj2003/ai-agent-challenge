@@ -5,7 +5,7 @@ import os
 import re
 
 # This line has been removed as it conflicts with the deployment environment.
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
 
 wellness_bp = Blueprint('wellness_bp', __name__)
 genai.configure()
