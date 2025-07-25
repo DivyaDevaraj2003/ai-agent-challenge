@@ -2,15 +2,11 @@ from flask import Blueprint, request, jsonify
 from google.generativeai import GenerativeModel
 import google.generativeai as genai
 import os
-import re
 
 # This configures genai using the environment variable you set on Render
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 wellness_bp = Blueprint('wellness_bp', __name__)
-
-# In-memory chat history store
-chat_sessions = {}
 
 # Define conversational keywords
 GREETINGS = ["hi", "hello", "hey", "greetings", "good morning", "good afternoon"]
@@ -21,7 +17,6 @@ THANKS = ["thanks", "thank you", "thx"]
 def ask_genetic():
     data = request.get_json()
     user_query = data.get("query")
-    user_id = data.get("user_id", "default_user")
 
     if not user_query:
         return jsonify({"answer": "Please provide a query."}), 400
@@ -33,24 +28,19 @@ def ask_genetic():
     if cleaned_query in THANKS:
         return jsonify({"answer": "You're welcome! Do you have any other questions?"})
 
-    # If it's a real question, proceed to the Gemini model
     try:
+        # Initialize the model directly
         model = GenerativeModel("gemini-1.5-flash")
 
-        if user_id in chat_sessions:
-            chat = chat_sessions[user_id]
-        else:
-            chat = model.start_chat(history=[])
-            chat_sessions[user_id] = chat
+        # Create a simple, direct prompt
+        prompt = f"You are an expert assistant for genetic wellness. Answer the following question clearly and concisely: {user_query}"
 
-        # Using a simple, fast prompt
-        prompt = f"Answer the following question about genetic wellness clearly and concisely: {user_query}"
-
-        response = chat.send_message(prompt)
+        # Make a direct, stateless call to the model (this is the simplified part)
+        response = model.generate_content(prompt)
         
         return jsonify({"answer": response.text})
 
     except Exception as e:
-        print("❌ Gemini error:", e)
-        # Provide a more helpful error message
-        return jsonify({"answer": f"An error occurred while connecting to the AI service. Please check the server logs."}), 500
+        # Print the actual error to the Render logs for debugging
+        print(f"❌ An actual Gemini error occurred: {e}")
+        return jsonify({"answer": "Sorry, an error occurred while connecting to the AI service."}), 500
