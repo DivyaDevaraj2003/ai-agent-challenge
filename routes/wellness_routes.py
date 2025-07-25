@@ -3,9 +3,16 @@ from google.generativeai import GenerativeModel
 import google.generativeai as genai
 import os
 
-# Configure the library ONCE using the environment variables set on Render
-# Do not pass any arguments here. The library finds the key automatically.
-genai.configure()
+# --- FINAL FIX: Manually read the key and configure the library ---
+# This is the most reliable way to ensure the key is found.
+try:
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        # This will show a clear error in the logs if the key is missing on Render
+        raise ValueError("GOOGLE_API_KEY environment variable not set or found.")
+    genai.configure(api_key=api_key)
+except Exception as e:
+    print(f"❌ ERROR DURING CONFIGURATION: {e}")
 
 wellness_bp = Blueprint('wellness_bp', __name__)
 
