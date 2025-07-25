@@ -199,3 +199,27 @@ body.dark-mode #assistant-description p {
   from { opacity: 0; transform: translateY(5px);}
   to   { opacity: 1; transform: translateY(0);}
 }
+#new-chat-btn {
+  /* Basic styling */
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.6); /* Subtle border */
+  color: #fff;
+  cursor: pointer;
+  
+  /* Sizing and Shape */
+  padding: 6px 14px;
+  border-radius: 20px; /* Makes it a "pill" shape */
+  font-size: 0.85rem;
+  font-weight: 600;
+  
+  /* Positioning */
+  margin-left: auto; /* Pushes it to the far right */
+
+  /* Smooth transition for hover effect */
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#new-chat-btn:hover {
+  background-color: #fff;
+  color: #1e1e1e; /* Dark background color of the chat */
+}
