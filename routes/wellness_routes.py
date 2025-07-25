@@ -4,8 +4,10 @@ import google.generativeai as genai
 import os
 import re
 
+# This configures genai using the environment variable you set on Render
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
 wellness_bp = Blueprint('wellness_bp', __name__)
-genai.configure()
 
 # In-memory chat history store
 chat_sessions = {}
@@ -35,25 +37,20 @@ def ask_genetic():
     try:
         model = GenerativeModel("gemini-1.5-flash")
 
-        # Use persistent chat if user session exists
         if user_id in chat_sessions:
             chat = chat_sessions[user_id]
         else:
             chat = model.start_chat(history=[])
             chat_sessions[user_id] = chat
 
-        # --- UPDATED: Simplified prompt to respond faster ---
-        prompt = f"""
-You are an expert assistant for genetic wellness. Answer the following question clearly and concisely.
+        # Using a simple, fast prompt
+        prompt = f"Answer the following question about genetic wellness clearly and concisely: {user_query}"
 
-Question: {user_query}
-"""
-
-        # Send message to Gemini
         response = chat.send_message(prompt)
         
         return jsonify({"answer": response.text})
 
     except Exception as e:
         print("❌ Gemini error:", e)
-        return jsonify({"answer": f"Error: {str(e)}"}), 500
+        # Provide a more helpful error message
+        return jsonify({"answer": f"An error occurred while connecting to the AI service. Please check the server logs."}), 500
