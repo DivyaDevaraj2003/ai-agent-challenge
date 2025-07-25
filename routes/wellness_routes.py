@@ -4,11 +4,11 @@ import google.generativeai as genai
 import os
 import re
 
-# This relies on the environment variables you set on Render.
-# The problematic os.environ[...] line has been removed.
-genai.configure()
+# This line has been removed as it conflicts with the deployment environment.
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "agent_config/credential.json"
 
 wellness_bp = Blueprint('wellness_bp', __name__)
+genai.configure()
 
 # In-memory chat history store (for each user/session)
 chat_sessions = {}
@@ -45,17 +45,37 @@ def ask_genetic():
             chat = model.start_chat(history=[])
             chat_sessions[user_id] = chat
 
-        # --- MODIFIED: A simpler prompt for faster responses on the server ---
-        prompt = f"You are an expert assistant for genetic wellness. Answer the following question clearly and concisely: {user_query}"
+        # Format the system prompt for the LLM
+        prompt = f"""
+You are an expert assistant. Answer the user's question as clearly and informatively as possible.
 
-        # Send message to Gemini and maintain history
+IMPORTANT: 
+- Format your answer as 3 to 4 bullet points.
+- Each bullet point must be a concise paragraph (2-3 sentences) that is separated from the next by a blank line (TWO newline characters).
+- Begin each bullet with '- ' (a dash and a space at line start, not a number or asterisk).
+- Do NOT cluster multiple ideas into one bullet.
+- Do not use markdown or formatting like bold or italics.
+- Do not include a greeting, summary, or conclusion.
+
+Answer the following question:
+
+{user_query}
+"""
+
+        # Send message to Gemini
         response = chat.send_message(prompt)
-        
-        # Directly return the model's response text
-        return jsonify({"answer": response.text})
+        response_text = response.text.strip()
+
+        # Bullet formatting cleanup
+        response_text = response_text.lstrip('-').strip()
+        bullets = re.split(r'(?:^|\n)\s*-\s+', response_text)
+        bullets = [b.strip() for b in bullets if b.strip()]
+        formatted = '\n\n- '.join(bullets)
+        if formatted and not formatted.startswith('-'):
+            formatted = '- ' + formatted
+
+        return jsonify({"answer": formatted})
 
     except Exception as e:
-        # This will print the detailed error to your Render logs
-        error_message = f"{type(e).__name__}: {str(e)}"
-        print(f"❌ Gemini API Error: {error_message}")
-        return jsonify({"answer": "Sorry, the AI service failed. Please check the server logs for details."}), 500
+        print("❌ Gemini error:", e)
+        return jsonify({"answer": f"Error: {str(e)}"}), 500
