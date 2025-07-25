@@ -73,4 +73,3 @@ With the setup complete, run the Flask application from the root directory:
 python app.py
 ```
 
-Open your web browser and navigate to `http://127.0.0.1:5000` to interact with the chat agents.
