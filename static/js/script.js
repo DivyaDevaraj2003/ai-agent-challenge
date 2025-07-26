@@ -5,41 +5,29 @@ if (!user_id) {
     localStorage.setItem("user_id", user_id);
 }
 
-// Set the default assistant
-let currentAssistant = "faq";
-
 // --- Helper function to get the correct messages container ---
 function getMessagesContainer() {
     return document.querySelector('.chat-messages');
 }
 
-// --- Functions to save and load chat history ---
-/**
- * Saves the current chat messages for a specific assistant to localStorage.
- * @param {string} assistantName - The name of the assistant (e.g., 'faq', 'wellness').
- */
-function saveChatHistory(assistantName) {
+// --- SIMPLIFIED: Functions to save and load a single chat history ---
+function saveChatHistory() {
     const messagesContainer = getMessagesContainer();
     if (messagesContainer) {
-        localStorage.setItem(`chatHistory_${assistantName}`, messagesContainer.innerHTML);
+        localStorage.setItem('chatHistory', messagesContainer.innerHTML);
     }
 }
 
-/**
- * Loads the chat history for a specific assistant from localStorage.
- * @param {string} assistantName - The name of the assistant (e.g., 'faq', 'wellness').
- */
-function loadChatHistory(assistantName) {
+function loadChatHistory() {
     const messagesContainer = getMessagesContainer();
-    const savedHistory = localStorage.getItem(`chatHistory_${assistantName}`);
+    const savedHistory = localStorage.getItem('chatHistory');
     
     if (messagesContainer) {
         if (savedHistory) {
-            // If history exists, load it
             messagesContainer.innerHTML = savedHistory;
         } else {
-            // If no history, show the default welcome message
-            messagesContainer.innerHTML = `<div class="bot-message">Hi 👋 I’m your ${assistantName} assistant. How can I help you today?</div>`;
+            // A single, unified welcome message
+            messagesContainer.innerHTML = `<div class="bot-message">Hi 👋 I’m your Nuegenomics assistant. How can I help you today?</div>`;
         }
         scrollToBottom();
     }
@@ -47,24 +35,8 @@ function loadChatHistory(assistantName) {
 
 
 // --- Event Listeners ---
-// Assistant Toggle Buttons
-document.getElementById("faq-btn").addEventListener("click", () => {
-    saveChatHistory(currentAssistant);
-    currentAssistant = "faq";
-    document.getElementById("faq-btn").classList.add("active");
-    document.getElementById("wellness-btn").classList.remove("active");
-    document.getElementById("assistant-description").innerHTML = "<p>Get quick answers to common questions.</p>";
-    loadChatHistory(currentAssistant);
-});
 
-document.getElementById("wellness-btn").addEventListener("click", () => {
-    saveChatHistory(currentAssistant);
-    currentAssistant = "wellness";
-    document.getElementById("wellness-btn").classList.add("active");
-    document.getElementById("faq-btn").classList.remove("active");
-    document.getElementById("assistant-description").innerHTML = "<p>Ask personalized questions about your genes, wellness, fitness and more!</p>";
-    loadChatHistory(currentAssistant);
-});
+// DELETED: The toggle button listeners are no longer needed.
 
 // Dark Mode Toggle
 document.getElementById('theme-toggle').addEventListener('click', function () {
@@ -75,8 +47,8 @@ document.getElementById('theme-toggle').addEventListener('click', function () {
 // New Chat Button
 document.getElementById('new-chat-btn').addEventListener('click', () => {
     if (confirm('Are you sure you want to start a new chat? This will clear the current conversation.')) {
-        localStorage.removeItem(`chatHistory_${currentAssistant}`);
-        loadChatHistory(currentAssistant);
+        localStorage.removeItem('chatHistory');
+        loadChatHistory();
     }
 });
 
@@ -127,7 +99,7 @@ function displayMessage(message, isUser = false) {
     messages.appendChild(bubble);
     
     scrollToBottom();
-    saveChatHistory(currentAssistant);
+    saveChatHistory();
 }
 
 // Main Send Chat Logic
@@ -140,7 +112,8 @@ async function sendChat() {
     inputBox.value = '';
     showTyping();
 
-    const endpoint = currentAssistant === 'wellness' ? '/wellness/ask' : '/faq/ask';
+    // UPDATED: Always use the single '/ask' endpoint
+    const endpoint = '/ask';
     const payload = { query: query, user_id: user_id };
 
     try {
@@ -160,7 +133,6 @@ async function sendChat() {
 }
 
 // --- Initialize App ---
-// Load the chat history for the default agent when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    loadChatHistory(currentAssistant);
+    loadChatHistory();
 });

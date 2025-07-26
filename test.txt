@@ -1,0 +1,129 @@
+
+
+```text
+======================================
+AI Agent Application - Testing Protocol
+======================================
+
+Objective: To systematically test the functionality, correctness, and user experience of the dual-agent chat application, ensuring both the FAQ Agent and the Wellness Agent perform according to specifications.
+
+----------------------------------------------------
+Part 1: FAQ Agent Testing
+----------------------------------------------------
+This section validates the rule-based logic and knowledge retrieval of the FAQ agent.
+
+[Test Case ID: FAQ-01]
+Feature: Greeting Handling
+Input: "hello"
+Expected Output: Bot responds with a standard greeting, like "Hello! How can I help you..."
+Result: PASS
+
+[Test Case ID: FAQ-02]
+Feature: Gratitude Handling
+Input: "thanks"
+Expected Output: Bot responds politely, like "You're welcome!..."
+Result: PASS
+
+[Test Case ID: FAQ-03]
+Feature: Identity Query
+Input: "what are you"
+Expected Output: Bot provides its specific identity, like "I am an AI assistant for NuGenomics..."
+Result: PASS
+
+[Test Case ID: FAQ-04]
+Feature: Short Valid Response
+Input: "ok"
+Expected Output: Bot acknowledges and prompts for another question, like "Great! Do you have another question?"
+Result: PASS
+
+[Test Case ID: FAQ-05]
+Feature: Short Invalid Query
+Input: "how do"
+Expected Output: Bot asks for a more complete question, like "That's a bit short..."
+Result: PASS
+
+[Test Case ID: FAQ-06]
+Feature: Exact FAQ Match
+Input: "What is genetic testing?"
+Expected Output: Bot provides the exact, corresponding answer from the FAQ data.
+Result: PASS
+
+[Test Case ID: FAQ-07]
+Feature: Fuzzy FAQ Match
+Input: "how much time for a report"
+Expected Output: Bot correctly identifies the question about report timelines and provides the correct answer.
+Result: PASS
+
+[Test Case ID: FAQ-08]
+Feature: Irrelevant Query
+Input: "What is the capital of Kerala?"
+Expected Output: Bot gives the polite fallback message, stating it doesn't know the answer and suggesting contacting support.
+Result: PASS
+
+
+----------------------------------------------------
+Part 2: Genetic Wellness Agent Testing
+----------------------------------------------------
+This section validates the LLM integration and its ability to handle general knowledge and conversational flow.
+
+[Test Case ID: GW-01]
+Feature: Greeting Handling
+Input: "hi"
+Expected Output: Bot responds with a standard greeting, not a definition of the word "hi".
+Result: PASS
+
+[Test Case ID: GW-02]
+Feature: General Knowledge
+Input: "What are the benefits of Omega-3 fatty acids?"
+Expected Output: Bot provides a clear, informative, multi-point answer about Omega-3 benefits, formatted as specified in the prompt.
+Result: PASS
+
+[Test Case ID: GW-03]
+Feature: Specific Genetic Query
+Input: "Explain the function of the APOE gene in simple terms."
+Expected Output: Bot provides an accurate, easy-to-understand explanation of the APOE gene's function.
+Result: PASS
+
+[Test Case ID: GW-04]
+Feature: Conversational Context (Memory)
+Action: 1. Ask "What is pharmacogenomics?". 2. Ask "How does it help doctors?".
+Expected Output: Bot understands that "it" in the second question refers to pharmacogenomics and provides a relevant follow-up answer.
+Result: PASS
+
+
+----------------------------------------------------
+Part 3: User Interface (UI) & Experience Testing
+----------------------------------------------------
+This section validates the overall application functionality and user interaction features.
+
+[Test Case ID: UI-01]
+Feature: Agent Toggling
+Action: Click on the "Genetic Wellness Assistant" button.
+Expected Outcome: The UI updates, the button becomes active, and the chat history for the Wellness Agent is loaded.
+Result: PASS
+
+[Test Case ID: UI-02]
+Feature: History Persistence on Refresh
+Action: Have a conversation with the FAQ agent, then refresh the browser page.
+Expected Outcome: The page reloads with the FAQ agent active, and the previous conversation is fully visible.
+Result: PASS
+
+[Test Case ID: UI-03]
+Feature: Cross-Agent History
+Action: Chat with the FAQ agent, switch to the Wellness agent, then switch back to the FAQ agent.
+Expected Outcome: The chat history for the FAQ agent is perfectly restored without any data loss.
+Result: PASS
+
+[Test Case ID: UI-04]
+Feature: New Chat Function
+Action: While in a conversation, click the "New Chat" button and confirm.
+Expected Outcome: The chat history for the current agent is cleared, and the default welcome message appears. The other agent's history remains intact.
+Result: PASS
+
+[Test Case ID: UI-05]
+Feature: Dark Mode
+Action: Click the theme toggle button (moon/sun icon).
+Expected Outcome: The application smoothly transitions between light and dark themes without affecting functionality.
+Result: PASS
+
+```

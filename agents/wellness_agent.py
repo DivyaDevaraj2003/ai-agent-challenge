@@ -1,17 +1,13 @@
-# genetic_wellness_agent.py
+# agents/wellness_agent.py
 
-import os
-from dotenv import load_dotenv
-from google.generativeai import configure, GenerativeModel
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+from instruction import GENETIC_WELLNESS_AGENT_INSTRUCTION
 
-# Load .env where GOOGLE_APPLICATION_CREDENTIALS is set
-load_dotenv()
-
-# This picks the service account JSON automatically
-configure()
-
-# Now you can safely initialize Gemini models
-model = GenerativeModel("gemini-1.5-pro")
-
-response = model.generate_content("What is genetic wellness?")
-print(response.text)
+class GeneticWellnessAgent(Agent):
+    """
+    An ADK Agent designed to answer general genetic wellness and scientific questions
+    by leveraging a foundational LLM's knowledge.
+    """
+    def __init__(self, name: str, instruction: str, model: LiteLlm):
+        super().__init__(name=name, instruction=instruction, model=model)
